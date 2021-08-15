@@ -10,6 +10,12 @@ namespace GameView
     public class MainMenu : BaseView
     {
         [SerializeField]
+        private GamePanelView gamePanelView;
+
+        [SerializeField]
+        private OptionsView optionsView;
+
+        [SerializeField]
         private RectTransform mainPanel;
 
         [SerializeField]
@@ -26,7 +32,7 @@ namespace GameView
 
         [SerializeField]
         private TextMeshProUGUI quitTitle;
-        
+
         [SerializeField]
         private Button startGameBtn;
 
@@ -36,18 +42,37 @@ namespace GameView
         [SerializeField]
         private Button quitGameBtn;
 
+        [SerializeField]
+        private Button resetData;
 
+        [SerializeField]
+        private Button privacyPolicy;
+
+        [SerializeField]
+        private Button backButton;
+        
         private UnityAction onStartGame;
         private UnityAction onOptions;
         private UnityAction onQuitGame;
+        private UnityAction onResetData;
+        private UnityAction onPPolicy;
+        private UnityAction backBtn;
 
-        public void InitGameMenu(UnityAction OnStart, UnityAction OptionsCallback)
+        public void InitGameMenu(UnityAction OnStart, UnityAction OptionsCallback, UnityAction QuitCallback, UnityAction ResetDataCallback, UnityAction PolicyCallback, UnityAction OnBack)
         {
             this.onOptions = OptionsCallback;
             this.onStartGame = OnStart;
+            this.onQuitGame = QuitCallback;
+            this.onResetData = ResetDataCallback;
+            this.onPPolicy = PolicyCallback;
+            this.backBtn = OnBack;
 
             this.startGameBtn.onClick.AddListener(StartGameCallback);
             this.optionsBtn.onClick.AddListener(OnOptionsCallback);
+            this.quitGameBtn.onClick.AddListener(OnQuitGameCallback);
+            this.resetData.onClick.AddListener(ResetData);
+            this.privacyPolicy.onClick.AddListener(PPolicy);
+            this.backButton.onClick.AddListener(Back);
         }
 
         public override void ShowView()
@@ -68,6 +93,26 @@ namespace GameView
         private void OnOptionsCallback()
         {
             onOptions.Invoke();
+        }
+
+        private void OnQuitGameCallback()
+        {
+            onQuitGame.Invoke();
+        }
+
+        private void ResetData()
+        {
+            onResetData.Invoke();
+        }
+
+        private void PPolicy()
+        {
+            onPPolicy.Invoke();
+        }
+
+        private void Back()
+        {
+            backBtn.Invoke();
         }
     }
 }

@@ -2,16 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Managers;
+using Utils;
+using Events;
 
 namespace PlayerProps
 {
     public class PlayerManager : MonoBehaviour
     {
 
+        [Header("PlayerBall")]
+        public PlayerMove playerMove;
+        public Transform playerSpawnPosition;
+
+        [SerializeField]
+        private PlayerMove playerBall;        
+        
         [Header("Lives")]
         public int lifes;
         public int health;
 
+        #region SOUNDS_EFFECTS
         [Header("Sounds")]
         [SerializeField]
         private AudioSource audioS;
@@ -35,7 +45,7 @@ namespace PlayerProps
         private List<AudioClip> levelEndClips = new List<AudioClip>();
 
         [SerializeField]
-        private AudioClip rollClip;
+        private List<AudioClip> playerHurtSound = new List<AudioClip>();
 
         [Header("PickEffect"), SerializeField]
         private ParticleSystem pickEffect;
@@ -47,27 +57,43 @@ namespace PlayerProps
         private ParticleSystem timesUpEffect;
 
         [SerializeField]
+        private ParticleSystem playerExplodeEffect;
+        #endregion
+
+        [SerializeField]
         private Transform holder;
 
+
         private ClassManager classManager;
+        private CameraLook cameraLook;
         private GameManager gameManager;
         private Enums enums;
-        private PlayerMove playerMove;
+        private GameEvents gameEvents;
 
         public void InitStart(ClassManager classManager)
         {
             this.classManager = classManager;
             this.gameManager = classManager.GameManager;
             this.enums = classManager.Enums;
-            this.playerMove = classManager.PlayerMove;
+            this.cameraLook = classManager.CameraLook;
+            this.gameEvents = classManager.Events;
 
-            playerMove.InitMove(classManager, WallTouchSnd, PickupSnd, ObstacleSnd, LvlEndSound, TimesUpSnd, TimeAddSnd, RollClipPlay);
+            StartCoroutine(SetCameraTarget());
+            SpawnPlayer();
+
+        }
+
+        public void SpawnPlayer()
+        {
+            var player = Instantiate(playerBall, playerSpawnPosition.position,Quaternion.identity);
+            playerMove = player;
+            Values.GameValues.playerSpawned = true;
+            playerMove.InitMove(classManager, WallTouchSnd, PickupSnd, ObstacleSnd, LvlEndSound, TimesUpSnd, TimeAddSnd);
         }
 
         // Update is called once per frame
         public void UpdatePlayerProps()
         {
-            //player moveUp
             playerMove.UpdateMove();
         }
 
@@ -83,6 +109,7 @@ namespace PlayerProps
             var sound = Random.Range(0, obstacleCips.Count);
             if (!audioS.isPlaying)
                 audioS.PlayOneShot(obstacleCips[sound]);
+            SpikeTouchByBall();
         }
         public void PickupSnd()
         {
@@ -94,7 +121,11 @@ namespace PlayerProps
 
         public void LvlEndSound()
         {
+            var sound = Random.Range(0, pickupClips.Count);
+            if (!audioS.isPlaying)
+                audioS.PlayOneShot(pickupClips[sound]);
 
+            gameEvents.OnLevelFinish.Invoke();
         }
 
         public void TimesUpSnd()
@@ -118,10 +149,37 @@ namespace PlayerProps
             effect.Play();
         }
 
-        public void RollClipPlay()
+        public void SpikeTouchByBall()
         {
-            if (!rollSound.isPlaying)
-                audioS.PlayOneShot(rollClip);
+            playerMove.GetComponent<MoveByAnimation>().StartAnimation();
+            playerMove.SetRbKinematic();
+            StartCoroutine(DestroyBall());
+        }
+
+        private IEnumerator DestroyBall()
+        {
+            yield return new WaitForSeconds(1f);
+            //
+            playerMove.GetComponent<ScaleByAnimation>().StartAnimation();
+            //
+            yield return new WaitForSeconds(1f);
+            //
+            Instantiate(playerExplodeEffect, playerMove.transform.position, Quaternion.identity);
+            //
+            var sound = Random.Range(0, playerHurtSound.Count);
+            audioS.PlayOneShot(playerHurtSound[sound]);
+            //
+            yield return new WaitForSeconds(.6f);
+            //
+            playerMove.gameObject.GetComponent<MeshRenderer>().enabled  =false;
+            gameManager.RestartLevel();
+        }
+
+
+        private IEnumerator SetCameraTarget()
+        {
+            yield return new WaitUntil(() => Values.GameValues.playerSpawned);
+            cameraLook.playerTarget = playerMove.transform;
         }
     }
 }

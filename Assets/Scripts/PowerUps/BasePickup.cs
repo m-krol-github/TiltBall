@@ -18,7 +18,6 @@ namespace Pickup
         protected AudioClip pickSound;
 
         private ClassManager classManager;
-        private PlayerMove playerMove;
         private PlayerManager playerManager;
         private Enums enums;
 
@@ -26,7 +25,6 @@ namespace Pickup
         {
             this.classManager = classManager;
             this.playerManager = classManager.PlayerManager;
-            this.playerMove = classManager.PlayerMove;
             this.enums = classManager.Enums;
         }
 

@@ -7,8 +7,7 @@ namespace Utils
 {
     public class CameraLook : MonoBehaviour
     {
-        [SerializeField]
-        private Transform playerTarget;
+        public Transform playerTarget;
 
         [SerializeField]
         private Camera cam;

@@ -1,4 +1,5 @@
 using System.Collections;
+
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerProps;
@@ -6,6 +7,8 @@ using Pickup;
 using GameView;
 using Storage;
 using Utils;
+using Events;
+using Audio;
 
 namespace Managers
 {
@@ -16,6 +19,10 @@ namespace Managers
         public Values Values => values;
 
         [SerializeField]
+        private GameEvents events;
+        public GameEvents Events => events;
+
+        [SerializeField]
         private GameManager gameManager;
         public GameManager GameManager => gameManager;
 
@@ -24,14 +31,12 @@ namespace Managers
         public Enums Enums => enums;
 
         [SerializeField]
-        private PlayerMove playerMove;
-        public PlayerMove PlayerMove => playerMove;
-
-        [SerializeField]
         private PlayerManager playerManager;
         public PlayerManager PlayerManager => playerManager;
 
-        
+        [SerializeField]
+        private CameraLook cameraLook;
+        public CameraLook CameraLook => cameraLook;
 
         [SerializeField]
         private InGameView gameView;
@@ -44,5 +49,17 @@ namespace Managers
         [SerializeField]
         private StorageData storage;
         public StorageData Storage => storage;
+
+        [SerializeField]
+        private Fader fader;
+        public Fader Fader => fader;
+
+        [SerializeField]
+        private DeathZone zone;
+        public DeathZone Zone => zone;
+
+        [SerializeField]
+        private AudioManager audioManager;
+        public AudioManager AudioManager => audioManager;
     }
 }

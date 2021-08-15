@@ -7,6 +7,8 @@ namespace GameView
 {
     public class InGameView : MonoBehaviour
     {
+        public bool passStart;
+
         [SerializeField]
         private BottomView bottom;
         public BottomView Bottom => bottom;
@@ -19,11 +21,16 @@ namespace GameView
         private MainMenu mainMenu;
         public MainMenu MainMenu => mainMenu;
 
+        [SerializeField]
+        private PausePanel pausePanel;
+        public PausePanel PausePanel => pausePanel;
+
         public void ShowView()
         {
             top.ShowView();
             bottom.ShowView();
             mainMenu.ShowView();
+            pausePanel.ShowView();
         }
 
         public void HideView()
@@ -31,6 +38,7 @@ namespace GameView
             top.HideView();
             bottom.HideView();
             mainMenu.HideView();
+            pausePanel.HideView();
         }
     }
 }

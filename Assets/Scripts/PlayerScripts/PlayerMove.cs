@@ -15,6 +15,7 @@ namespace PlayerProps
         public float speed;
         public int startingPitch = 1;
         public int volumeSpeeed = 1;
+        public bool playRoll;
 
         [SerializeField]
         private AudioSource audioS;
@@ -35,10 +36,9 @@ namespace PlayerProps
         private UnityAction OnLvlEnd;
         private UnityAction OnTimeUp;
         private UnityAction OnTimeAdd;
-        private UnityAction OnRoll;
 
         public void InitMove(ClassManager classManager, UnityAction WallTchCallback, UnityAction PickupCollectCallback, UnityAction ObstacleTouch, UnityAction LevelEndCallback, 
-            UnityAction TimeUpCallback, UnityAction TimeAddCallback, UnityAction RollCallback)
+            UnityAction TimeUpCallback, UnityAction TimeAddCallback)
         {
             this.classManager = classManager;
             this.enums = classManager.Enums;
@@ -50,10 +50,11 @@ namespace PlayerProps
             this.OnLvlEnd = LevelEndCallback;
             this.OnTimeUp = TimeUpCallback;
             this.OnTimeAdd = TimeAddCallback;
-            this.OnRoll = RollCallback;
+
 
             this.audioS.time = volumeSpeeed;
             this.audioS.pitch = startingPitch;
+
         }
 
         public void UpdateMove()
@@ -62,14 +63,17 @@ namespace PlayerProps
             {
                 Vector3 tilt = Input.acceleration;
                 tilt = Quaternion.Euler(90, 0, 0) * tilt;
-
-                rb.AddForce(tilt * speed);
+                if (rb != null)
+                {
+                    rb.AddForce(tilt * speed);
+                }
             }else if(enums.playerInput == Enums.PLAYER_INPUT.KEYB)
             {
                 var h = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
                 var v = Input.GetAxis("Vertical") * speed * Time.deltaTime;                                
 
-                rb.AddForce(new Vector3(h,0,v) * speed,ForceMode.Force);
+                if(rb != null)
+                    rb.AddForce(new Vector3(h,0,v) * speed,ForceMode.Force);
             }
             else if (enums.playerInput == Enums.PLAYER_INPUT.BOTH)
             {
@@ -79,20 +83,34 @@ namespace PlayerProps
                 var h = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
                 var v = Input.GetAxis("Vertical") * speed * Time.deltaTime;
 
-                rb.AddForce(new Vector3(h, 0, v), ForceMode.Force);
-                rb.AddForce(tilt * speed);
+                if (rb != null)
+                {
+
+                    rb.AddForce(new Vector3(h, 0, v), ForceMode.Force);
+                    rb.AddForce(tilt * speed);
+                }
             }
 
-            var ballSpeed = rb.velocity.magnitude;
-            audioS.volume = ballSpeed / volumeSpeeed;
-            //var maxPitch = Mathf.Clamp(startingPitch, 0, 1.5f);
-            //audioS.pitch = ballSpeed / maxPitch;
-
-            if (!audioS.isPlaying)
+            if (rb != null)
+            {
+                var ballSpeed = rb.velocity.magnitude;
+                audioS.volume = ballSpeed / volumeSpeeed;
+                /*
+                var maxPitch = Mathf.Clamp(startingPitch, 1, 1.2f);
+                audioS.pitch = ballSpeed / maxPitch;
+                */
+            }
+            if (!audioS.isPlaying && playRoll)
                 audioS.PlayOneShot(rollClip);
+
+
+            if(rb.velocity.magnitude > 0)
+            {
+                playRoll = true;
+            }
         }
 
-        private void OnCollisionEnter(Collision other)
+        private void OnTriggerEnter(Collider other)
         {
             MMVibrationManager.Haptic(HapticTypes.Failure);
             if (other.gameObject.GetComponent<SimpleWall>())
@@ -101,9 +119,33 @@ namespace PlayerProps
             }
 
             if (other.gameObject.GetComponent<SimpleWatch>())
-            {                
+            {
                 OnTimeAdd?.Invoke();
                 Destroy(other.gameObject);
+            }
+
+            if(other.gameObject.tag == "Spikes")
+            {
+                OnObstacleTouch.Invoke();
+            }
+
+            if(other.gameObject.tag == "LevelEnd")
+            {
+                PlayerPrefs.SetInt("LastLevel", classManager.Levels.currentLevelIndex += 1);
+                Destroy(other);
+                OnLvlEnd.Invoke();
+            }
+        }
+
+        public void SetRbKinematic()
+        {
+            if (rb.isKinematic == true)
+            {
+                rb.isKinematic = false;
+            }
+            else if (rb.isKinematic == false)
+            {
+                rb.isKinematic = true;
             }
         }
     }

@@ -5,11 +5,15 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
 using Managers;
+using Utils;
 
 namespace GameView
 {
     public class TopView : BaseView
     {
+        [SerializeField]
+        private TextMeshProUGUI touchToStart;
+
         [SerializeField]
         private RectTransform mainPanel;
 
@@ -21,6 +25,9 @@ namespace GameView
 
         [SerializeField]
         private TextMeshProUGUI levelNumber;
+
+        [SerializeField]
+        private TextMeshProUGUI levelFinish;
 
         [SerializeField]
         private Button pause;
@@ -40,9 +47,15 @@ namespace GameView
 
         public void UpdateView()
         {
+            health.text = gameManager.playerLifes.ToString();
             time.text = gameManager.levelTime.ToString("F0");
-
             levelNumber.text = gameManager.levelNumber.ToString("D3");
+            TouchTOStart();
+            // ref to sound manager
+            if (time.text == 11.ToString())
+            {
+                classManager.AudioManager.PlayLastTenSeconds();
+            }
         }
 
         public override void ShowView()
@@ -55,9 +68,37 @@ namespace GameView
             base.HideView();
         }
 
+        public void ShowFinish()
+        {
+            StartCoroutine(LevelF(1));
+        }
+
+        private IEnumerator LevelF(float t)
+        {
+            levelFinish.gameObject.SetActive(true);
+            levelFinish.GetComponent<ScaleByAnimation>().StartAnimation();
+            yield return new WaitForSeconds(t);
+            levelFinish.gameObject.SetActive(false);
+        }
+
         private void PauseButton()
         {
             OnPauseClick?.Invoke();
+        }
+
+        public bool TouchTOStart()
+        {
+            if (Values.GameValues.showStartText)
+            {
+                touchToStart.gameObject.SetActive(true);
+                return false; 
+            }
+            else 
+            {
+                touchToStart.gameObject.SetActive(false);
+                return true; 
+            }
+
         }
     }
 }
