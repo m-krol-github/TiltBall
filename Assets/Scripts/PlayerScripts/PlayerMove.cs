@@ -5,7 +5,6 @@ using Managers;
 using UnityEngine.Events;
 using Obstacles;
 using Pickup;
-using MoreMountains.NiceVibrations;
 
 namespace PlayerProps
 {
@@ -112,7 +111,6 @@ namespace PlayerProps
 
         private void OnTriggerEnter(Collider other)
         {
-            MMVibrationManager.Haptic(HapticTypes.Failure);
             if (other.gameObject.GetComponent<SimpleWall>())
             {
                 OnWallTouch?.Invoke();

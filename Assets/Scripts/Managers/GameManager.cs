@@ -6,7 +6,6 @@ using Pickup;
 using GameView;
 using UnityEngine.SceneManagement;
 using Storage;
-using MoreMountains.NiceVibrations;
 using Utils;
 using Events;
 using Audio;
