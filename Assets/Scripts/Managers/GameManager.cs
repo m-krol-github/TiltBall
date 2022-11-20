@@ -94,10 +94,7 @@ namespace Managers
             if (Values.GameValues.levelStart)
                 levelTime -= Time.deltaTime;
 
-            //player props classupdate
-            if (Values.GameValues.levelStart)
-                playerManager.UpdatePlayerProps();
-
+           
             //enums track
             if (enums.debugMode == Enums.DEBUG_MODE.YES)
             {
@@ -130,13 +127,12 @@ namespace Managers
             if (Values.GameValues.levelSpawned)
                 levels.UpdateLevels();
 
-
+            
             if (!Values.GameValues.levelSpawned)
             {
-                if (Input.GetMouseButtonDown(0))
-                    levels.StartGame();
+                levels.StartGame();
             }
-
+            
             if(levelTime <= 0)
             {
                 RestartLevel();

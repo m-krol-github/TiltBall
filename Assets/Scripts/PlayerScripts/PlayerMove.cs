@@ -15,6 +15,7 @@ namespace PlayerProps
         public int startingPitch = 1;
         public int volumeSpeeed = 1;
         public bool playRoll;
+        public FloatingJoystick joy;
 
         [SerializeField]
         private AudioSource audioS;
@@ -37,7 +38,7 @@ namespace PlayerProps
         private UnityAction OnTimeAdd;
 
         public void InitMove(ClassManager classManager, UnityAction WallTchCallback, UnityAction PickupCollectCallback, UnityAction ObstacleTouch, UnityAction LevelEndCallback, 
-            UnityAction TimeUpCallback, UnityAction TimeAddCallback)
+            UnityAction TimeUpCallback, UnityAction TimeAddCallback, FloatingJoystick joy)
         {
             this.classManager = classManager;
             this.enums = classManager.Enums;
@@ -49,14 +50,14 @@ namespace PlayerProps
             this.OnLvlEnd = LevelEndCallback;
             this.OnTimeUp = TimeUpCallback;
             this.OnTimeAdd = TimeAddCallback;
-
+            this.joy = joy;
 
             this.audioS.time = volumeSpeeed;
             this.audioS.pitch = startingPitch;
 
         }
 
-        public void UpdateMove()
+        public void Update()
         {
             if (enums.playerInput == Enums.PLAYER_INPUT.TILT)
             {
@@ -69,7 +70,7 @@ namespace PlayerProps
             }else if(enums.playerInput == Enums.PLAYER_INPUT.KEYB)
             {
                 var h = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
-                var v = Input.GetAxis("Vertical") * speed * Time.deltaTime;                                
+                var v = Input.GetAxis("Vertical") * speed * Time.deltaTime;            
 
                 if(rb != null)
                     rb.AddForce(new Vector3(h,0,v) * speed,ForceMode.Force);
@@ -89,7 +90,17 @@ namespace PlayerProps
                     rb.AddForce(tilt * speed);
                 }
             }
+            else if (enums.playerInput == Enums.PLAYER_INPUT.JOYSTICK)
+            {
+                Vector3 tilt = Input.acceleration;
+                tilt = Quaternion.Euler(90, 0, 0) * tilt;
 
+                var h = joy.Horizontal * speed * Time.deltaTime;
+                var v = joy.Vertical * speed * Time.deltaTime;
+
+                if (rb != null)
+                    rb.AddForce(new Vector3(h, 0, v) * speed, ForceMode.Force);
+            }
             if (rb != null)
             {
                 var ballSpeed = rb.velocity.magnitude;

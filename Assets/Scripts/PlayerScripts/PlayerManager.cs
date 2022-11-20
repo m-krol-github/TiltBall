@@ -63,6 +63,8 @@ namespace PlayerProps
         [SerializeField]
         private Transform holder;
 
+        [SerializeField] private FloatingJoystick joy;
+
 
         private ClassManager classManager;
         private CameraLook cameraLook;
@@ -88,13 +90,7 @@ namespace PlayerProps
             var player = Instantiate(playerBall, playerSpawnPosition.position,Quaternion.identity);
             playerMove = player;
             Values.GameValues.playerSpawned = true;
-            playerMove.InitMove(classManager, WallTouchSnd, PickupSnd, ObstacleSnd, LvlEndSound, TimesUpSnd, TimeAddSnd);
-        }
-
-        // Update is called once per frame
-        public void UpdatePlayerProps()
-        {
-            playerMove.UpdateMove();
+            playerMove.InitMove(classManager, WallTouchSnd, PickupSnd, ObstacleSnd, LvlEndSound, TimesUpSnd, TimeAddSnd, joy);
         }
 
         public void WallTouchSnd()

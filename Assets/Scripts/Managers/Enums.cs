@@ -10,6 +10,7 @@ namespace Managers
         {
             TILT,
             KEYB,
+            JOYSTICK,
             BOTH
         };
 

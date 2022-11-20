@@ -90,7 +90,7 @@ namespace GameView
         {
             if (Values.GameValues.showStartText)
             {
-                touchToStart.gameObject.SetActive(true);
+                touchToStart.gameObject.SetActive(false);
                 return false; 
             }
             else 
